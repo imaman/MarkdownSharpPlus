@@ -54,6 +54,8 @@
   </Target>
   -->
   <ItemGroup>
+    <Compile Include="Lexer.cs" />
+    <Compile Include="Lexer_Tests.cs" />
     <Compile Include="Markdown.cs" />
     <Compile Include="Markdown_Tests.cs" />
     <Compile Include="Tester.cs" />
