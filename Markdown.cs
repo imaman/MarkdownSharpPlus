@@ -7,26 +7,21 @@ using System.Text;
 namespace MarkdownSharpPlus
 {
 
-    public class Markdown
+    public class Lexer
     {
         private String input;
-        public String Version = "0.0";
 
+        public Lexer(String input_)
+        {
+            this.input = input_;
+        }
 
-        public override String ToString()
+        public override string ToString()
         {
             return input;
         }
 
-        public string Transform(string input_)
-        {
-            this.input = input_;
-            Node n = parse();
-            var result = n.transform();
-            return result;
-        }
-
-        public String consume(int n)
+        internal string consume(int n)
         {
             String res = input.Substring(0, n);
             input = input.Substring(n);
@@ -34,7 +29,7 @@ namespace MarkdownSharpPlus
             return res;
         }
 
-        public Boolean consumeIf(String s)
+        internal bool consumeIf(string s)
         {
             if (!nextIs(s))
                 return false;
@@ -43,12 +38,12 @@ namespace MarkdownSharpPlus
             return true;
         }
 
-        public Boolean nextIs(String a)
+        internal bool nextIs(string a)
         {
             return input.StartsWith(a);
         }
 
-        int findNext(String a)
+        internal int findNext(string a)
         {
             var i = input.IndexOf(a);
             if (i >= 0)
@@ -57,9 +52,59 @@ namespace MarkdownSharpPlus
             return input.Length;
         }
 
-        public Boolean eof()
+        internal bool eof()
         {
             return input.Length == 0;
+        }
+
+        internal int IndexOf(string s)
+        {
+            return input.IndexOf(s);
+        }
+    }
+
+    public class Markdown
+    {
+        private Lexer input;
+        public String Version = "0.0";
+
+
+        public override String ToString()
+        {
+            return input.ToString();
+        }
+
+        public string Transform(string input_)
+        {
+            this.input = new Lexer(input_);
+            Node n = parse();
+            var result = n.transform();
+            return result;
+        }
+
+        public String consume(int n)
+        {
+            return input.consume(n);
+        }
+
+        public Boolean consumeIf(String s)
+        {
+            return input.consumeIf(s);
+        }
+
+        public Boolean nextIs(String a)
+        {
+            return input.nextIs(a); 
+        }
+
+        int findNext(String a)
+        {
+            return input.findNext(a);
+        }
+
+        public Boolean eof()
+        {
+            return input.eof();
         }
 
 
@@ -78,7 +123,7 @@ namespace MarkdownSharpPlus
                 var n = parseList();
                 res.add(new Wrapper("", n, "\n"));
 
-                if (input.Length == 0)
+                if (input.eof())
                     return res;
             }
         }
@@ -172,7 +217,7 @@ namespace MarkdownSharpPlus
         {
             if(consumeIf("\n"))
                 return new TextNode("");
-            if (input.Length == 0)
+            if (input.eof())
                 return new TextNode("");
             var res = new CompositeNode();
             res.add(fragment());
